@@ -1,0 +1,7 @@
+body:has(#agentsge-page) {
+  --page-bg-color: #BEFFCC;
+  --text-color: #000;
+  --frame-color: #000;
+  --footer-bg-color: #BEFFCC;
+  --footer-text-color: #000;
+}
