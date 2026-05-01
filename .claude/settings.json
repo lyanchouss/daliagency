@@ -1,0 +1,8 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(curl -s -o /dev/null -w \"font: %{http_code}\\\\n\" http://localhost:3000/fonts/adelia.ttf)",
+      "Bash(curl -s -o /dev/null -w \"page: %{http_code}\\\\n\" http://localhost:3000/)"
+    ]
+  }
+}

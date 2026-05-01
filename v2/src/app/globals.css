@@ -1,0 +1,141 @@
+@import url("https://fonts.googleapis.com/css2?family=Libre+Baskerville:ital@1&display=swap&text=%26");
+@font-face {
+  font-family: "Adelia";
+  src: url("/fonts/adelia.ttf") format("truetype");
+  font-display: swap;
+}
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@property --page-bg-color {
+  syntax: "<color>";
+  initial-value: #fff;
+  inherits: true;
+}
+
+@property --page-text-color {
+  syntax: "<color>";
+  initial-value: #000;
+  inherits: true;
+}
+
+@property --final-frame-color {
+  syntax: "<color>";
+  initial-value: #000;
+  inherits: true;
+}
+
+@property --footer-bg-color {
+  syntax: "<color>";
+  initial-value: #000;
+  inherits: true;
+}
+
+@property --footer-text-color {
+  syntax: "<color>";
+  initial-value: #fff;
+  inherits: true;
+}
+
+:root {
+  --primary: #dd1e3e;
+  --final-frame-color: var(--frame-color, var(--primary));
+
+  --footer-bg-color: #dd1e3e;
+  --footer-text-color: #fff;
+}
+
+html {
+  -webkit-text-size-adjust: 100%;
+  -webkit-font-smoothing: antialiased;
+  font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+body {
+  position: relative;
+  padding: 10px;
+  background-color: var(--page-bg-color);
+}
+
+.page-container {
+  display: grid;
+  --min-x-padding: 16px;
+  --content-max-width: 1200px;
+  grid-template-columns:
+    1fr min(95vw - 2 * var(--min-x-padding), var(--content-max-width))
+    1fr;
+}
+
+.page-container > .full-bleed {
+  grid-column: 1 / -1;
+  width: 100%;
+}
+
+.page-container.wide {
+  --content-max-width: 95vw;
+}
+
+.page-container > * {
+  grid-column: 2;
+}
+
+.lottie-hero svg path[fill="rgb(255,255,255)"] {
+  fill: var(--primary);
+}
+
+.amp {
+  font-family: "Libre Baskerville", serif;
+  font-style: italic;
+  font-weight: normal;
+  -webkit-text-stroke: 1.5px #FFF;
+}
+
+.video-preview {
+  position: relative;
+}
+
+.video-preview::after {
+  background-repeat: no-repeat;
+  background-position: center right;
+  background-size: contain;
+  content: '';
+  display: block;
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+}
+
+.video-preview--landscape::after {
+  background-image: url("/global/video-ui.svg");
+}
+
+.video-preview--reel::after {
+  background-image: url("/global/reel-ui.svg");
+  border: 10px transparent solid;
+}
+
+@media (pointer: coarse) {
+  .touch-device\:hidden {
+    display: none;
+  }
+}
+
+.fade-in {
+  animation: fadeIn 0.5s ease-in-out;
+}
+
+@keyframes fadeIn {
+  0% {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
