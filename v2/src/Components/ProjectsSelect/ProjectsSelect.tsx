@@ -14,6 +14,157 @@ interface Props {
   excludeProjects?: string[];
 }
 
+type ColorOverride = { backgroundColor?: string; frameColor?: string };
+
+function ColorsPanel({
+  overrides,
+  setOverride,
+  resetAll,
+}: {
+  overrides: Record<string, ColorOverride>;
+  setOverride: (slug: string, key: keyof ColorOverride, value: string) => void;
+  resetAll: () => void;
+}) {
+  const exportCode = () => {
+    const lines = projects
+      .map((p) => {
+        const o = overrides[p.slug] ?? {};
+        const bg = o.backgroundColor ?? p.backgroundColor;
+        const frame = o.frameColor ?? p.frameColor;
+        return `  // ${p.title}\n  { slug: "${p.slug}", backgroundColor: "${bg}", frameColor: "${frame}" },`;
+      })
+      .join("\n");
+    navigator.clipboard.writeText(`[\n${lines}\n]`);
+  };
+
+  return (
+    <div
+      style={{
+        position: "fixed",
+        top: 20,
+        right: 20,
+        zIndex: 99999,
+        background: "rgba(0,0,0,0.92)",
+        color: "#fff",
+        padding: 16,
+        borderRadius: 12,
+        fontSize: 12,
+        fontFamily: "monospace",
+        width: 320,
+        maxHeight: "92vh",
+        overflowY: "auto",
+      }}
+    >
+      <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 12 }}>
+        <strong style={{ fontSize: 13 }}>Project Colors</strong>
+        <div style={{ display: "flex", gap: 6 }}>
+          <button
+            onClick={resetAll}
+            style={{
+              background: "#444",
+              color: "#fff",
+              border: "none",
+              borderRadius: 6,
+              padding: "4px 10px",
+              cursor: "pointer",
+              fontSize: 11,
+            }}
+          >
+            Reset
+          </button>
+          <button
+            onClick={exportCode}
+            style={{
+              background: "#dd1e3e",
+              color: "#fff",
+              border: "none",
+              borderRadius: 6,
+              padding: "4px 10px",
+              cursor: "pointer",
+              fontSize: 11,
+            }}
+          >
+            Copy
+          </button>
+        </div>
+      </div>
+      <div style={{ fontSize: 10, color: "#888", marginBottom: 10 }}>
+        Ctrl+P to toggle. Copy then paste values into projects.ts.
+      </div>
+      {projects.map((p) => {
+        const o = overrides[p.slug] ?? {};
+        const bg = o.backgroundColor ?? p.backgroundColor;
+        const frame = o.frameColor ?? p.frameColor;
+        return (
+          <div
+            key={p.slug}
+            style={{
+              marginBottom: 10,
+              padding: 8,
+              border: `1px solid ${frame}`,
+              background: "rgba(255,255,255,0.04)",
+              borderRadius: 6,
+            }}
+          >
+            <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 6 }}>
+              <strong style={{ fontSize: 11 }}>{p.title}</strong>
+              <span style={{ color: "#888", fontSize: 10 }}>{p.slug}</span>
+            </div>
+            <div style={{ display: "flex", gap: 8, alignItems: "center", marginBottom: 4 }}>
+              <label style={{ width: 70, fontSize: 10 }}>Background</label>
+              <input
+                type="color"
+                value={bg}
+                onChange={(e) => setOverride(p.slug, "backgroundColor", e.target.value)}
+                style={{ width: 36, height: 24, border: "none", background: "transparent", cursor: "pointer" }}
+              />
+              <input
+                type="text"
+                value={bg}
+                onChange={(e) => setOverride(p.slug, "backgroundColor", e.target.value)}
+                style={{
+                  flex: 1,
+                  background: "#111",
+                  color: "#fff",
+                  border: "1px solid #333",
+                  borderRadius: 4,
+                  padding: "2px 6px",
+                  fontFamily: "monospace",
+                  fontSize: 11,
+                }}
+              />
+            </div>
+            <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
+              <label style={{ width: 70, fontSize: 10 }}>Frame</label>
+              <input
+                type="color"
+                value={frame}
+                onChange={(e) => setOverride(p.slug, "frameColor", e.target.value)}
+                style={{ width: 36, height: 24, border: "none", background: "transparent", cursor: "pointer" }}
+              />
+              <input
+                type="text"
+                value={frame}
+                onChange={(e) => setOverride(p.slug, "frameColor", e.target.value)}
+                style={{
+                  flex: 1,
+                  background: "#111",
+                  color: "#fff",
+                  border: "1px solid #333",
+                  borderRadius: 4,
+                  padding: "2px 6px",
+                  fontFamily: "monospace",
+                  fontSize: 11,
+                }}
+              />
+            </div>
+          </div>
+        );
+      })}
+    </div>
+  );
+}
+
 export default function ProjectsSelect({ excludeProjects }: Props) {
   const [emblaRef, emblaApi] = useEmblaCarousel({
     align: "start",
@@ -49,6 +200,42 @@ export default function ProjectsSelect({ excludeProjects }: Props) {
     (typeof projects)[number] | null
   >(null);
 
+  const [colorOverrides, setColorOverrides] = useState<Record<string, ColorOverride>>(
+    {}
+  );
+  const [showColorsPanel, setShowColorsPanel] = useState(false);
+
+  useEffect(() => {
+    const handler = (e: KeyboardEvent) => {
+      if (e.ctrlKey && e.key.toLowerCase() === "p") {
+        e.preventDefault();
+        setShowColorsPanel((v) => !v);
+      }
+    };
+    window.addEventListener("keydown", handler);
+    return () => window.removeEventListener("keydown", handler);
+  }, []);
+
+  const setOverride = useCallback(
+    (slug: string, key: keyof ColorOverride, value: string) => {
+      setColorOverrides((o) => ({
+        ...o,
+        [slug]: { ...o[slug], [key]: value },
+      }));
+    },
+    []
+  );
+
+  const resetOverrides = useCallback(() => setColorOverrides({}), []);
+
+  const resolveColors = (project: (typeof projects)[number]) => {
+    const o = colorOverrides[project.slug] ?? {};
+    return {
+      backgroundColor: o.backgroundColor ?? project.backgroundColor,
+      frameColor: o.frameColor ?? project.frameColor,
+    };
+  };
+
   const options = projects.filter(
     (project) => !excludeProjects?.includes(project.slug)
   );
@@ -69,6 +256,13 @@ export default function ProjectsSelect({ excludeProjects }: Props) {
   };
   return (
     <LayoutGroup>
+      {showColorsPanel && (
+        <ColorsPanel
+          overrides={colorOverrides}
+          setOverride={setOverride}
+          resetAll={resetOverrides}
+        />
+      )}
       <div className="hidden md:flex justify-end gap-12 mb-24">
         <button
           type="button"
@@ -91,7 +285,9 @@ export default function ProjectsSelect({ excludeProjects }: Props) {
       </div>
       <div className="overflow-hidden" ref={emblaRef}>
         <ul className="flex gap-24" ref={projectsContainerRef}>
-          {options.map((option, idx) => (
+          {options.map((option, idx) => {
+            const resolved = resolveColors(option);
+            return (
             <motion.li
               layout
               layoutId={`project-${option.slug}`}
@@ -106,10 +302,8 @@ export default function ProjectsSelect({ excludeProjects }: Props) {
               <button
                 className={`p-24 w-full flex flex-col items-stretch uppercase border-2 max-w-[600px] h-full text-left`}
                 style={{
-                  ...(option.backgroundColor && {
-                    backgroundColor: option.backgroundColor,
-                  }),
-                  borderColor: option.frameColor,
+                  backgroundColor: resolved.backgroundColor,
+                  borderColor: resolved.frameColor,
                 }}
                 onClick={() => onSelectProject(idx)}
               >
@@ -141,7 +335,7 @@ export default function ProjectsSelect({ excludeProjects }: Props) {
                   <div className="mt-auto mx-auto w-full max-w-[92%] my-42">
                     <div
                       className="relative w-full overflow-hidden rounded-md border shadow-2xl bg-black/5 aspect-[16/10]"
-                      style={{ borderColor: option.frameColor }}
+                      style={{ borderColor: resolved.frameColor }}
                     >
                       <Image
                         src={option.image}
@@ -157,7 +351,8 @@ export default function ProjectsSelect({ excludeProjects }: Props) {
                 )}
               </button>
             </motion.li>
-          ))}
+            );
+          })}
         </ul>
       </div>
       <Portal id="frame-overlay">
@@ -167,8 +362,8 @@ export default function ProjectsSelect({ excludeProjects }: Props) {
             layout
             layoutId={`project-${openProject.slug}`}
             style={{
-              backgroundColor: openProject.backgroundColor,
-              borderColor: openProject.frameColor,
+              backgroundColor: resolveColors(openProject).backgroundColor,
+              borderColor: resolveColors(openProject).frameColor,
             }}
           ></motion.div>
         )}
