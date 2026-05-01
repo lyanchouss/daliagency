@@ -1,6 +1,7 @@
 "use client";
 import { motion, useMotionValue, animate, useTransform } from "framer-motion";
-import { useEffect, useRef, useState, useCallback } from "react";
+import { useEffect, useRef, useState } from "react";
+import { parse as parseFont, type Font } from "opentype.js";
 
 const LETTERS = ["D", "a", "l", "i"];
 
@@ -11,11 +12,11 @@ const DEFAULTS = {
   SPACING_0: -4,
   SPACING_1: -20,
   SPACING_2: -4,
-  PEN_WIDTH: 36,
+  PEN_WIDTH: 28,
   ANIM_DURATION: 3,
   ANIM_DELAY: 0.3,
   STROKE_PORTION: 100,
-  LETTER_OVERLAP: 0,
+  LETTER_OVERLAP: 30,
   EASE_0: 0.32,
   EASE_1: 0.04,
   EASE_2: 0.4,
@@ -23,8 +24,9 @@ const DEFAULTS = {
 };
 
 type Params = typeof DEFAULTS;
-type Glyph = { ch: string; x: number; dash: number };
-type Layout = { glyphs: Glyph[] };
+type Bbox = { x1: number; y1: number; x2: number; y2: number };
+type Glyph = { ch: string; pathData: string; advanceWidth: number; bbox: Bbox };
+type Layout = { glyphs: Array<Glyph & { x: number }> };
 
 const LAYOUT_KEYS: Array<keyof Params> = [
   "FONT_SIZE",
@@ -50,14 +52,14 @@ const CONTROL_META: Record<keyof Params, { label: string; min: number; max: numb
   FONT_SIZE: { label: "Font Size", min: 40, max: 300, step: 1 },
   BASELINE_Y: { label: "Baseline Y", min: 50, max: 400, step: 1 },
   START_X: { label: "Start X", min: -50, max: 200, step: 1 },
-  SPACING_0: { label: "Space D→a", min: -60, max: 60, step: 1 },
-  SPACING_1: { label: "Space a→l", min: -60, max: 60, step: 1 },
-  SPACING_2: { label: "Space l→i", min: -60, max: 60, step: 1 },
-  PEN_WIDTH: { label: "Pen width (mask)", min: 4, max: 80, step: 1 },
+  SPACING_0: { label: "Space D→a", min: -200, max: 60, step: 1 },
+  SPACING_1: { label: "Space a→l", min: -200, max: 60, step: 1 },
+  SPACING_2: { label: "Space l→i", min: -200, max: 60, step: 1 },
+  PEN_WIDTH: { label: "Pen width", min: 4, max: 200, step: 1 },
   ANIM_DURATION: { label: "Total duration (s)", min: 0.5, max: 10, step: 0.05 },
   ANIM_DELAY: { label: "Start delay (s)", min: 0, max: 5, step: 0.05 },
   STROKE_PORTION: { label: "Stroke % of slot", min: 30, max: 100, step: 1 },
-  LETTER_OVERLAP: { label: "Letter overlap %", min: 0, max: 50, step: 1 },
+  LETTER_OVERLAP: { label: "Next starts at % done", min: 0, max: 95, step: 1 },
   EASE_0: { label: "Ease p1 (in-x)", min: 0, max: 1, step: 0.01 },
   EASE_1: { label: "Ease p2 (in-y)", min: -1, max: 2, step: 0.01 },
   EASE_2: { label: "Ease p3 (out-x)", min: 0, max: 1, step: 0.01 },
@@ -76,15 +78,34 @@ const EASE_PRESETS: Record<string, [number, number, number, number]> = {
 };
 
 function getSlot(i: number, n: number, strokePct: number, overlapPct: number) {
-  const slot = 1 / n;
-  const overlap = (overlapPct / 100) * slot;
-  const start = Math.max(0, i * slot - overlap * i);
-  const slotEnd = start + slot;
-  const strokeEnd = start + slot * (strokePct / 100);
-  return {
-    strokeStart: start,
-    strokeEnd: Math.min(slotEnd, strokeEnd),
-  };
+  const overlap = Math.min(0.95, overlapPct / 100);
+  const letterDuration = 1 / (n - (n - 1) * overlap);
+  const start = i * letterDuration * (1 - overlap);
+  const slotEnd = start + letterDuration;
+  const strokeEnd = start + letterDuration * (strokePct / 100);
+  return { strokeStart: start, strokeEnd: Math.min(slotEnd, strokeEnd) };
+}
+
+let cachedFont: Font | null = null;
+let cachedFontPromise: Promise<Font> | null = null;
+function loadAdelia(): Promise<Font> {
+  if (cachedFont) return Promise.resolve(cachedFont);
+  if (cachedFontPromise) return cachedFontPromise;
+  cachedFontPromise = fetch("/fonts/adelia.ttf")
+    .then((res) => {
+      if (!res.ok) throw new Error(`Adelia fetch failed: ${res.status}`);
+      return res.arrayBuffer();
+    })
+    .then((buf) => {
+      const font = parseFont(buf);
+      cachedFont = font;
+      return font;
+    })
+    .catch((err) => {
+      cachedFontPromise = null;
+      throw err;
+    });
+  return cachedFontPromise;
 }
 
 function DebugPanel({
@@ -284,7 +305,6 @@ function DebugPanel({
 }
 
 export default function DaliAnimation() {
-  const measureRefs = useRef<Array<SVGTextElement | null>>([]);
   const [layout, setLayout] = useState<Layout | null>(null);
   const [params, setParams] = useState<Params>(DEFAULTS);
   const [animKey, setAnimKey] = useState(0);
@@ -297,40 +317,40 @@ export default function DaliAnimation() {
 
   const spacings = [params.SPACING_0, params.SPACING_1, params.SPACING_2];
 
-  const measure = useCallback(() => {
-    let cursor = params.START_X;
-    const glyphs: Glyph[] = [];
-    LETTERS.forEach((ch, i) => {
-      const el = measureRefs.current[i];
-      if (!el) return;
-      const bbox = el.getBBox();
-      const x = cursor - bbox.x;
-      const dash = Math.ceil((bbox.width + bbox.height) * 3) || 600;
-      glyphs.push({ ch, x, dash });
-      cursor += bbox.width + (spacings[i] ?? 0);
-    });
-    setLayout({ glyphs });
-  }, [params.START_X, spacings[0], spacings[1], spacings[2]]);
-
   useEffect(() => {
     let cancelled = false;
-    const doMeasure = () => {
-      if (!cancelled) measure();
-    };
-    const fonts = (document as Document & { fonts?: FontFaceSet }).fonts;
-    if (fonts && fonts.load) {
-      fonts.load(`${params.FONT_SIZE}px Adelia`).then(() => fonts.ready).then(doMeasure).catch(doMeasure);
-    } else {
-      doMeasure();
-    }
+    loadAdelia()
+      .then((font) => {
+        if (cancelled) return;
+        let cursor = params.START_X;
+        const glyphs: Layout["glyphs"] = [];
+        LETTERS.forEach((ch, i) => {
+          const path = font.getPath(ch, cursor, params.BASELINE_Y, params.FONT_SIZE);
+          const pathData = path.toPathData(2);
+          const bbox = path.getBoundingBox();
+          glyphs.push({
+            ch,
+            pathData,
+            x: cursor,
+            advanceWidth: bbox.x2 - bbox.x1,
+            bbox: { x1: bbox.x1, y1: bbox.y1, x2: bbox.x2, y2: bbox.y2 },
+          });
+          cursor = bbox.x2 + (spacings[i] ?? 0);
+        });
+        setLayout({ glyphs });
+      })
+      .catch((err) => console.error("[Dali] font load failed:", err));
     return () => {
       cancelled = true;
     };
-  }, [params.FONT_SIZE, measure]);
-
-  useEffect(() => {
-    measure();
-  }, [measure]);
+  }, [
+    params.FONT_SIZE,
+    params.BASELINE_Y,
+    params.START_X,
+    spacings[0],
+    spacings[1],
+    spacings[2],
+  ]);
 
   useEffect(() => {
     if (!layout || scrubbing || !isPlaying) return;
@@ -369,24 +389,17 @@ export default function DaliAnimation() {
     return () => unsub();
   }, [layout, scrubbing, progressMV]);
 
-  const dashes: number[] = [
-    layout?.glyphs[0]?.dash ?? 600,
-    layout?.glyphs[1]?.dash ?? 600,
-    layout?.glyphs[2]?.dash ?? 600,
-    layout?.glyphs[3]?.dash ?? 600,
-  ];
-
   const slot0 = getSlot(0, 4, params.STROKE_PORTION, params.LETTER_OVERLAP);
   const slot1 = getSlot(1, 4, params.STROKE_PORTION, params.LETTER_OVERLAP);
   const slot2 = getSlot(2, 4, params.STROKE_PORTION, params.LETTER_OVERLAP);
   const slot3 = getSlot(3, 4, params.STROKE_PORTION, params.LETTER_OVERLAP);
 
-  const stroke0 = useTransform(progressMV, [slot0.strokeStart, slot0.strokeEnd], [dashes[0], 0], { clamp: true });
-  const stroke1 = useTransform(progressMV, [slot1.strokeStart, slot1.strokeEnd], [dashes[1], 0], { clamp: true });
-  const stroke2 = useTransform(progressMV, [slot2.strokeStart, slot2.strokeEnd], [dashes[2], 0], { clamp: true });
-  const stroke3 = useTransform(progressMV, [slot3.strokeStart, slot3.strokeEnd], [dashes[3], 0], { clamp: true });
+  const len0 = useTransform(progressMV, [slot0.strokeStart, slot0.strokeEnd], [0, 1], { clamp: true });
+  const len1 = useTransform(progressMV, [slot1.strokeStart, slot1.strokeEnd], [0, 1], { clamp: true });
+  const len2 = useTransform(progressMV, [slot2.strokeStart, slot2.strokeEnd], [0, 1], { clamp: true });
+  const len3 = useTransform(progressMV, [slot3.strokeStart, slot3.strokeEnd], [0, 1], { clamp: true });
 
-  const strokeArr = [stroke0, stroke1, stroke2, stroke3];
+  const lenArr = [len0, len1, len2, len3];
 
   const handleParamChange = (k: keyof Params, v: number) => setParams((p) => ({ ...p, [k]: v }));
 
@@ -448,63 +461,32 @@ export default function DaliAnimation() {
         aria-label="Dali"
       >
         <defs>
-          <style>{`
-            .dali-ink {
-              font-family: 'Adelia', 'Brush Script MT', cursive;
-              font-weight: 400;
-              font-size: ${params.FONT_SIZE}px;
-            }
-          `}</style>
+          {layout?.glyphs.map(({ bbox }, i) => {
+            const pad = 8;
+            const fullW = bbox.x2 - bbox.x1 + pad * 2;
+            return (
+              <mask key={`mask-${i}`} id={`dali-pen-${i}`}>
+                <motion.rect
+                  x={bbox.x1 - pad}
+                  y={bbox.y1 - pad}
+                  height={bbox.y2 - bbox.y1 + pad * 2}
+                  fill="white"
+                  style={{ scaleX: lenArr[i] }}
+                  width={fullW}
+                  transform-origin={`${bbox.x1 - pad}px ${bbox.y1}px`}
+                />
+              </mask>
+            );
+          })}
         </defs>
 
-        <g aria-hidden="true" opacity={0}>
-          {LETTERS.map((ch, i) => (
-            <text
-              key={`m-${i}`}
-              ref={(el) => {
-                measureRefs.current[i] = el;
-              }}
-              x={0}
-              y={params.BASELINE_Y}
-              className="dali-ink"
-            >
-              {ch}
-            </text>
-          ))}
-        </g>
-
-        <defs>
-          {layout?.glyphs.map(({ ch, x, dash }, i) => (
-            <mask key={`mask-${i}`} id={`dali-pen-${i}`}>
-              <motion.text
-                x={x}
-                y={params.BASELINE_Y}
-                className="dali-ink"
-                fill="none"
-                stroke="white"
-                strokeWidth={params.PEN_WIDTH}
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeDasharray={dash}
-                strokeDashoffset={strokeArr[i]}
-              >
-                {ch}
-              </motion.text>
-            </mask>
-          ))}
-        </defs>
-
-        {layout?.glyphs.map(({ ch, x }, i) => (
-          <text
+        {layout?.glyphs.map(({ pathData }, i) => (
+          <path
             key={`a-${i}`}
-            x={x}
-            y={params.BASELINE_Y}
-            className="dali-ink"
+            d={pathData}
             fill="var(--primary, #dd1e3e)"
             mask={`url(#dali-pen-${i})`}
-          >
-            {ch}
-          </text>
+          />
         ))}
       </svg>
     </>
