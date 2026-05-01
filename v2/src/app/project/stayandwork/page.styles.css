@@ -1,0 +1,7 @@
+body:has(#stayandwork-page) {
+  --page-bg-color: #DCEEFB;
+  --text-color: #000;
+  --frame-color: #1A4D7A;
+  --footer-bg-color: #DCEEFB;
+  --footer-text-color: #000;
+}

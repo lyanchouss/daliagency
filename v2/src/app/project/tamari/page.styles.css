@@ -1,0 +1,7 @@
+body:has(#tamari-page) {
+  --page-bg-color: #E8DCC4;
+  --text-color: #000;
+  --frame-color: #6B4E1E;
+  --footer-bg-color: #E8DCC4;
+  --footer-text-color: #000;
+}

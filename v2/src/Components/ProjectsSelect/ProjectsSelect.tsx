@@ -1,5 +1,5 @@
 "use client";
-import React, { useEffect, useRef, useState } from "react";
+import React, { useCallback, useEffect, useRef, useState } from "react";
 import { projects } from "./projects";
 import { serifText } from "@/assets/fonts";
 import Image from "next/image";
@@ -7,16 +7,43 @@ import useEmblaCarousel from "embla-carousel-react";
 import { useRouter } from "next/navigation";
 import Portal from "../Portal/Portal";
 import { LayoutGroup, motion } from "framer-motion";
+import { FiChevronLeft, FiChevronRight } from "react-icons/fi";
+import PhoneFrame from "../PhoneFrame/PhoneFrame";
 
 interface Props {
   excludeProjects?: string[];
 }
 
 export default function ProjectsSelect({ excludeProjects }: Props) {
-  const [emblaRef] = useEmblaCarousel();
+  const [emblaRef, emblaApi] = useEmblaCarousel({
+    align: "start",
+    dragFree: true,
+    containScroll: "trimSnaps",
+  });
   const router = useRouter();
   const projectsContainerRef = useRef<HTMLUListElement>(null);
   const isOnScreen = useOnScreen(projectsContainerRef);
+
+  const [canScrollPrev, setCanScrollPrev] = useState(false);
+  const [canScrollNext, setCanScrollNext] = useState(false);
+
+  const scrollPrev = useCallback(() => emblaApi?.scrollPrev(), [emblaApi]);
+  const scrollNext = useCallback(() => emblaApi?.scrollNext(), [emblaApi]);
+
+  useEffect(() => {
+    if (!emblaApi) return;
+    const onSelect = () => {
+      setCanScrollPrev(emblaApi.canScrollPrev());
+      setCanScrollNext(emblaApi.canScrollNext());
+    };
+    onSelect();
+    emblaApi.on("select", onSelect);
+    emblaApi.on("reInit", onSelect);
+    return () => {
+      emblaApi.off("select", onSelect);
+      emblaApi.off("reInit", onSelect);
+    };
+  }, [emblaApi]);
 
   const [openProject, setOpenProject] = useState<
     (typeof projects)[number] | null
@@ -42,7 +69,27 @@ export default function ProjectsSelect({ excludeProjects }: Props) {
   };
   return (
     <LayoutGroup>
-      <div className="" ref={emblaRef}>
+      <div className="hidden md:flex justify-end gap-12 mb-24">
+        <button
+          type="button"
+          aria-label="Previous projects"
+          onClick={scrollPrev}
+          disabled={!canScrollPrev}
+          className="w-48 h-48 flex items-center justify-center border-2 border-current rounded-full transition disabled:opacity-30 disabled:cursor-not-allowed hover:bg-black hover:text-white hover:border-black"
+        >
+          <FiChevronLeft className="w-20 h-20" />
+        </button>
+        <button
+          type="button"
+          aria-label="Next projects"
+          onClick={scrollNext}
+          disabled={!canScrollNext}
+          className="w-48 h-48 flex items-center justify-center border-2 border-current rounded-full transition disabled:opacity-30 disabled:cursor-not-allowed hover:bg-black hover:text-white hover:border-black"
+        >
+          <FiChevronRight className="w-20 h-20" />
+        </button>
+      </div>
+      <div className="overflow-hidden" ref={emblaRef}>
         <ul className="flex gap-24" ref={projectsContainerRef}>
           {options.map((option, idx) => (
             <motion.li
@@ -81,15 +128,33 @@ export default function ProjectsSelect({ excludeProjects }: Props) {
                     ))}
                   </div>
                 </div>
-                <div className="mt-auto mx-auto lg:max-w-[80%]">
-                  <Image
-                    src={option.image}
-                    alt=""
-                    className="w-full my-42 shadow-2xl"
-                    placeholder="blur"
-                    priority={isOnScreen}
-                  />
-                </div>
+                {option.orientation === "portrait" ? (
+                  <div className="mt-auto mx-auto w-full max-w-[45%] my-42">
+                    <PhoneFrame
+                      src={option.image}
+                      alt={option.title}
+                      placeholder="blur"
+                      priority={isOnScreen}
+                    />
+                  </div>
+                ) : (
+                  <div className="mt-auto mx-auto w-full max-w-[92%] my-42">
+                    <div
+                      className="relative w-full overflow-hidden rounded-md border shadow-2xl bg-black/5 aspect-[16/10]"
+                      style={{ borderColor: option.frameColor }}
+                    >
+                      <Image
+                        src={option.image}
+                        alt=""
+                        fill
+                        sizes="(max-width: 768px) 80vw, 500px"
+                        className="object-cover object-top"
+                        placeholder="blur"
+                        priority={isOnScreen}
+                      />
+                    </div>
+                  </div>
+                )}
               </button>
             </motion.li>
           ))}
