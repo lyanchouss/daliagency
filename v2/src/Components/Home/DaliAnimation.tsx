@@ -37,9 +37,8 @@ const LAYOUT_KEYS: Array<keyof Params> = [
 const ANIM_KEYS: Array<keyof Params> = [
   "ANIM_DURATION",
   "ANIM_DELAY",
-  "STROKE_WIDTH",
+  "PEN_WIDTH",
   "STROKE_PORTION",
-  "FILL_LAG",
   "LETTER_OVERLAP",
   "EASE_0",
   "EASE_1",
@@ -54,11 +53,10 @@ const CONTROL_META: Record<keyof Params, { label: string; min: number; max: numb
   SPACING_0: { label: "Space D→a", min: -60, max: 60, step: 1 },
   SPACING_1: { label: "Space a→l", min: -60, max: 60, step: 1 },
   SPACING_2: { label: "Space l→i", min: -60, max: 60, step: 1 },
-  STROKE_WIDTH: { label: "Pen width", min: 0.1, max: 8, step: 0.1 },
+  PEN_WIDTH: { label: "Pen width (mask)", min: 4, max: 80, step: 1 },
   ANIM_DURATION: { label: "Total duration (s)", min: 0.5, max: 10, step: 0.05 },
   ANIM_DELAY: { label: "Start delay (s)", min: 0, max: 5, step: 0.05 },
   STROKE_PORTION: { label: "Stroke % of slot", min: 30, max: 100, step: 1 },
-  FILL_LAG: { label: "Fill lag % of slot", min: 0, max: 100, step: 1 },
   LETTER_OVERLAP: { label: "Letter overlap %", min: 0, max: 50, step: 1 },
   EASE_0: { label: "Ease p1 (in-x)", min: 0, max: 1, step: 0.01 },
   EASE_1: { label: "Ease p2 (in-y)", min: -1, max: 2, step: 0.01 },
@@ -77,18 +75,15 @@ const EASE_PRESETS: Record<string, [number, number, number, number]> = {
   snap: [0.7, 0, 0.3, 1],
 };
 
-function getSlot(i: number, n: number, strokePct: number, fillLagPct: number, overlapPct: number) {
+function getSlot(i: number, n: number, strokePct: number, overlapPct: number) {
   const slot = 1 / n;
   const overlap = (overlapPct / 100) * slot;
   const start = Math.max(0, i * slot - overlap * i);
   const slotEnd = start + slot;
   const strokeEnd = start + slot * (strokePct / 100);
-  const fillStart = start + slot * (fillLagPct / 100);
   return {
     strokeStart: start,
     strokeEnd: Math.min(slotEnd, strokeEnd),
-    fillStart: Math.min(slotEnd, fillStart),
-    fillEnd: slotEnd,
   };
 }
 
@@ -381,22 +376,17 @@ export default function DaliAnimation() {
     layout?.glyphs[3]?.dash ?? 600,
   ];
 
-  const slot0 = getSlot(0, 4, params.STROKE_PORTION, params.FILL_LAG, params.LETTER_OVERLAP);
-  const slot1 = getSlot(1, 4, params.STROKE_PORTION, params.FILL_LAG, params.LETTER_OVERLAP);
-  const slot2 = getSlot(2, 4, params.STROKE_PORTION, params.FILL_LAG, params.LETTER_OVERLAP);
-  const slot3 = getSlot(3, 4, params.STROKE_PORTION, params.FILL_LAG, params.LETTER_OVERLAP);
+  const slot0 = getSlot(0, 4, params.STROKE_PORTION, params.LETTER_OVERLAP);
+  const slot1 = getSlot(1, 4, params.STROKE_PORTION, params.LETTER_OVERLAP);
+  const slot2 = getSlot(2, 4, params.STROKE_PORTION, params.LETTER_OVERLAP);
+  const slot3 = getSlot(3, 4, params.STROKE_PORTION, params.LETTER_OVERLAP);
 
   const stroke0 = useTransform(progressMV, [slot0.strokeStart, slot0.strokeEnd], [dashes[0], 0], { clamp: true });
-  const fill0 = useTransform(progressMV, [slot0.fillStart, slot0.fillEnd], [0, 1], { clamp: true });
   const stroke1 = useTransform(progressMV, [slot1.strokeStart, slot1.strokeEnd], [dashes[1], 0], { clamp: true });
-  const fill1 = useTransform(progressMV, [slot1.fillStart, slot1.fillEnd], [0, 1], { clamp: true });
   const stroke2 = useTransform(progressMV, [slot2.strokeStart, slot2.strokeEnd], [dashes[2], 0], { clamp: true });
-  const fill2 = useTransform(progressMV, [slot2.fillStart, slot2.fillEnd], [0, 1], { clamp: true });
   const stroke3 = useTransform(progressMV, [slot3.strokeStart, slot3.strokeEnd], [dashes[3], 0], { clamp: true });
-  const fill3 = useTransform(progressMV, [slot3.fillStart, slot3.fillEnd], [0, 1], { clamp: true });
 
   const strokeArr = [stroke0, stroke1, stroke2, stroke3];
-  const fillArr = [fill0, fill1, fill2, fill3];
 
   const handleParamChange = (k: keyof Params, v: number) => setParams((p) => ({ ...p, [k]: v }));
 
@@ -483,23 +473,38 @@ export default function DaliAnimation() {
           ))}
         </g>
 
-        {layout?.glyphs.map(({ ch, x, dash }, i) => (
-          <motion.text
+        <defs>
+          {layout?.glyphs.map(({ ch, x, dash }, i) => (
+            <mask key={`mask-${i}`} id={`dali-pen-${i}`}>
+              <motion.text
+                x={x}
+                y={params.BASELINE_Y}
+                className="dali-ink"
+                fill="none"
+                stroke="white"
+                strokeWidth={params.PEN_WIDTH}
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeDasharray={dash}
+                strokeDashoffset={strokeArr[i]}
+              >
+                {ch}
+              </motion.text>
+            </mask>
+          ))}
+        </defs>
+
+        {layout?.glyphs.map(({ ch, x }, i) => (
+          <text
             key={`a-${i}`}
             x={x}
             y={params.BASELINE_Y}
             className="dali-ink"
             fill="var(--primary, #dd1e3e)"
-            fillOpacity={fillArr[i]}
-            stroke="var(--primary, #dd1e3e)"
-            strokeWidth={params.STROKE_WIDTH}
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            strokeDasharray={dash}
-            strokeDashoffset={strokeArr[i]}
+            mask={`url(#dali-pen-${i})`}
           >
             {ch}
-          </motion.text>
+          </text>
         ))}
       </svg>
     </>
