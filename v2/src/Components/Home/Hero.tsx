@@ -62,24 +62,25 @@ export default function Hero() {
           <motion.span className="inline-block" variants={headTextWords}>
             We
           </motion.span>{" "}
-          <br />
           <motion.span className="inline-block" variants={headTextWords}>
-            Launch
+            turn
           </motion.span>{" "}
-          <br />
           <motion.span className="inline-block" variants={headTextWords}>
-            Products
-          </motion.span>{" "}
-          <br />
-          <motion.span className="inline-block" variants={headTextWords}>
-            Experiences
-          </motion.span>{" "}
-          <motion.span className="inline-block amp" variants={headTextWords}>
-            &amp;
+            ideas
           </motion.span>
           <br />
           <motion.span className="inline-block" variants={headTextWords}>
-            Communities
+            into
+          </motion.span>{" "}
+          <motion.span className="inline-block" variants={headTextWords}>
+            working
+          </motion.span>
+          <br />
+          <motion.span className="inline-block" variants={headTextWords}>
+            digital
+          </motion.span>{" "}
+          <motion.span className="inline-block" variants={headTextWords}>
+            systems
           </motion.span>
         </motion.h1>
         <div className="relative">

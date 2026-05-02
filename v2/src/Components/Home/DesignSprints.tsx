@@ -18,6 +18,7 @@ export default function DesignSprint() {
 
   return (
     <section
+      id="services"
       className="lg:min-h-[min(500vh,6000px)] relative py-80 isolate z-10"
       ref={container}
     >
