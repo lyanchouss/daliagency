@@ -1,7 +1,7 @@
 body:has(#muqta-page) {
-  --page-bg-color: #FFE4D6;
+  --page-bg-color: #B8DDF7;
   --text-color: #000;
-  --frame-color: #DC2626;
-  --footer-bg-color: #FFE4D6;
+  --frame-color: #5E9FD1;
+  --footer-bg-color: #B8DDF7;
   --footer-text-color: #000;
 }

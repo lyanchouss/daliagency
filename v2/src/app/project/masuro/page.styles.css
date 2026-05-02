@@ -1,7 +1,7 @@
 body:has(#masuro-page) {
-  --page-bg-color: #F4F0E8;
+  --page-bg-color: #E8C9C9;
   --text-color: #000;
-  --frame-color: #000;
-  --footer-bg-color: #F4F0E8;
+  --frame-color: #9B6B6B;
+  --footer-bg-color: #E8C9C9;
   --footer-text-color: #000;
 }
