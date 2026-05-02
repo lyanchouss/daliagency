@@ -6,6 +6,7 @@ import Image from "next/image";
 import Container from "@/Components/Container/Container";
 import { condensedHeadings, serifText } from "@/assets/fonts";
 import PapersImage from "@/assets/images/footer-papers.png";
+import NoiseLayer from "@/Components/PageGrain/NoiseLayer";
 
 const sayHiVariants = ["Say Hi", "مرحباً", "Здраво", "Zdravo", "Hola"];
 
@@ -23,8 +24,9 @@ export default function Footer() {
   const prevText = sayHiVariants[(sayHiTextIndex - 1) % sayHiVariants.length];
 
   return (
-    <footer className="bg-[var(--footer-bg-color)] text-[var(--footer-text-color)]">
-      <div className="flex justify-end py-40">
+    <footer className="relative isolate bg-[var(--footer-bg-color)] text-[var(--footer-text-color)]">
+      <NoiseLayer alpha={42} className="z-0 mix-blend-multiply" />
+      <div className="relative z-10 flex justify-end py-40">
         <p
           className={`text-body1 relative flex items-center gap-16 uppercase ${condensedHeadings.className}`}
         >
@@ -56,10 +58,10 @@ export default function Footer() {
               ))}
             </div>
             <a
-              href="mailto:team@peakshift.com"
+              href="mailto:dav.hakobyan100@gmail.com"
               className={`text-body1 ${serifText.className} underline`}
             >
-              TEAM@PEAKSHIFT.COM
+              DAV.HAKOBYAN100@GMAIL.COM
             </a>
           </div>
           <div className="grid grid-cols-2 py-42">
