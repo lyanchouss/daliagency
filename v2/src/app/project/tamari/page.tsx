@@ -21,7 +21,7 @@ export default function TamariPage() {
           className={`${monoText.className} uppercase flex flex-col gap-36 py-80`}
         >
           <h1 className={`text-body1 md:text-[72px] leading-none`}>
-            {/* [TEXT] Headline */}
+            Daily wisdom of the saints, in your pocket.
           </h1>
           <ul className={`flex text-body5 md:text-h2 gap-36 font-light`}>
             {projectData.tags.map((tag, idx) => (
@@ -41,28 +41,27 @@ export default function TamariPage() {
           </p>
         </section>
 
-        <section className="flex flex-col justify-center items-center py-40 md:py-80">
-          <div className="w-full max-w-[280px] md:max-w-[340px]">
-            <PhoneFrame
-              src={HeroImage}
-              alt="Saint King Tamari app"
-              placeholder="blur"
-              sizes="(max-width: 768px) 80vw, 340px"
-            />
-          </div>
-        </section>
-
-        <section
-          className={`${serifText.className} grid grid-cols-1 md:grid-cols-2 gap-32 py-40 md:py-80`}
-        >
+        <section className={`${serifText.className} py-40 md:py-80`}>
           <h2
-            className={`${condensedHeadings.className} text-h3 md:text-[48px] uppercase`}
+            className={`${condensedHeadings.className} text-h3 md:text-[48px] uppercase mb-24 md:mb-40`}
           >
-            {/* [TEXT] About heading */}
+            About the project
           </h2>
-          <p className="text-body4 md:text-body1">
-            {/* [TEXT] Intro paragraph */}
-          </p>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-32 md:gap-48 items-start">
+            <div className="flex justify-center md:justify-start">
+              <div className="w-full max-w-[260px]">
+                <PhoneFrame
+                  src={HeroImage}
+                  alt="Saint King Tamari app"
+                  placeholder="blur"
+                  sizes="(max-width: 768px) 70vw, 260px"
+                />
+              </div>
+            </div>
+            <p className="text-body4 md:text-body1">
+              Saint King Tamari is a mobile app for daily spiritual practice — each day surfaces a saint, along with their teachings and stories for reflection. The brand and product came together in our studio: reverent yet contemporary, designed to honor the depth of the tradition while feeling natural in everyday use.
+            </p>
+          </div>
         </section>
 
         <section className="py-80">

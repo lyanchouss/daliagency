@@ -24,7 +24,7 @@ export default function MuqtaPage() {
           className={`${monoText.className} uppercase flex flex-col gap-36 py-80`}
         >
           <h1 className={`text-body1 md:text-[72px] leading-none`}>
-            {/* [TEXT] Headline */}
+            A smart shopping companion in your pocket.
           </h1>
           <ul className={`flex text-body5 md:text-h2 gap-36 font-light`}>
             {projectData.tags.map((tag, idx) => (
@@ -44,14 +44,26 @@ export default function MuqtaPage() {
           </p>
         </section>
 
-        <section className="flex flex-col justify-center items-center py-40 md:py-80">
-          <div className="w-full max-w-[280px] md:max-w-[340px]">
-            <PhoneFrame
-              src={HeroImage}
-              alt="Muqta app"
-              placeholder="blur"
-              sizes="(max-width: 768px) 80vw, 340px"
-            />
+        <section className={`${serifText.className} py-40 md:py-80`}>
+          <h2
+            className={`${condensedHeadings.className} text-h3 md:text-[48px] uppercase mb-24 md:mb-40`}
+          >
+            About the project
+          </h2>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-32 md:gap-48 items-start">
+            <div className="flex justify-center md:justify-start">
+              <div className="w-full max-w-[260px]">
+                <PhoneFrame
+                  src={HeroImage}
+                  alt="Muqta app"
+                  placeholder="blur"
+                  sizes="(max-width: 768px) 70vw, 260px"
+                />
+              </div>
+            </div>
+            <p className="text-body4 md:text-body1">
+              Muqta is a smart shopping companion — comparing prices, tracking promotions, surfacing the best value across stores. Our team handled brand and product end-to-end, shaping a mobile experience that turns everyday shopping into a confident, informed act.
+            </p>
           </div>
         </section>
 
@@ -61,19 +73,6 @@ export default function MuqtaPage() {
             <PhoneFrame src={Photo3} alt="Muqta app screen" placeholder="blur" />
             <PhoneFrame src={Photo4} alt="Muqta app screen" placeholder="blur" />
           </div>
-        </section>
-
-        <section
-          className={`${serifText.className} grid grid-cols-1 md:grid-cols-2 gap-32 py-40 md:py-80`}
-        >
-          <h2
-            className={`${condensedHeadings.className} text-h3 md:text-[48px] uppercase`}
-          >
-            {/* [TEXT] About heading */}
-          </h2>
-          <p className="text-body4 md:text-body1">
-            {/* [TEXT] Intro paragraph */}
-          </p>
         </section>
 
         <section className="py-80">

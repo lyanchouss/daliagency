@@ -1,7 +1,7 @@
 body:has(#muqtad-page) {
-  --page-bg-color: #FFE5E5;
+  --page-bg-color: #FDFBF7;
   --text-color: #000;
-  --frame-color: #DC2626;
-  --footer-bg-color: #FFE5E5;
+  --frame-color: #5E9FD1;
+  --footer-bg-color: #FDFBF7;
   --footer-text-color: #000;
 }

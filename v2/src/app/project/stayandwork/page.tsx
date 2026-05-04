@@ -22,7 +22,7 @@ export default function StayAndWorkPage() {
           className={`${monoText.className} uppercase flex flex-col gap-36 py-80`}
         >
           <h1 className={`text-body1 md:text-[72px] leading-none`}>
-            {/* [TEXT] Headline — e.g. "Helping internationals settle and work in Georgia" */}
+            Helping internationals settle and work legally in Georgia.
           </h1>
           <ul className={`flex text-body5 md:text-h2 gap-36 font-light`}>
             {projectData.tags.map((tag, idx) => (
@@ -42,26 +42,23 @@ export default function StayAndWorkPage() {
           </p>
         </section>
 
-        <section className="full-bleed max-w-[1440px] mx-auto flex flex-col justify-center items-center py-40 md:py-80">
-          <Image
-            src={HeroImage}
-            alt="Stay & Work Georgia website"
-            className="w-full max-w-[1440px]"
-            placeholder="blur"
-          />
-        </section>
-
-        <section
-          className={`${serifText.className} grid grid-cols-1 md:grid-cols-2 gap-32 py-40 md:py-80`}
-        >
+        <section className={`${serifText.className} py-40 md:py-80`}>
           <h2
-            className={`${condensedHeadings.className} text-h3 md:text-[48px] uppercase`}
+            className={`${condensedHeadings.className} text-h3 md:text-[48px] uppercase mb-24 md:mb-40`}
           >
-            {/* [TEXT] How-might-we / about heading */}
+            About the project
           </h2>
-          <p className="text-body4 md:text-body1">
-            {/* [TEXT] Intro paragraph */}
-          </p>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-32 md:gap-48 items-start">
+            <Image
+              src={HeroImage}
+              alt="Stay & Work Georgia website"
+              className="w-full"
+              placeholder="blur"
+            />
+            <p className="text-body4 md:text-body1">
+              Stay & Work Georgia is a legal-tech service helping international professionals navigate residency, work permits, and tax registration. Our role was to build the brand from scratch — visual identity, website, and a product experience that turns complex bureaucracy into something approachable and trustworthy.
+            </p>
+          </div>
         </section>
 
         <section className="py-80">

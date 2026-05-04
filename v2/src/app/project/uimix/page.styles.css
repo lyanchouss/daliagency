@@ -1,7 +1,7 @@
 body:has(#uimix-page) {
   --page-bg-color: #ECECEC;
   --text-color: #000;
-  --frame-color: #000;
+  --frame-color: #888888;
   --footer-bg-color: #ECECEC;
   --footer-text-color: #000;
 }

@@ -1,7 +1,7 @@
 body:has(#deliverysetup-page) {
-  --page-bg-color: #F5E6D3;
+  --page-bg-color: #F4FAE6;
   --text-color: #000;
-  --frame-color: #6B4423;
-  --footer-bg-color: #F5E6D3;
+  --frame-color: #94B062;
+  --footer-bg-color: #F4FAE6;
   --footer-text-color: #000;
 }

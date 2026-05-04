@@ -22,7 +22,7 @@ export default function DeliverySetupPage() {
           className={`${monoText.className} uppercase flex flex-col gap-36 py-80`}
         >
           <h1 className={`text-body1 md:text-[72px] leading-none`}>
-            {/* [TEXT] Headline */}
+            End-to-end delivery operations for restaurants.
           </h1>
           <ul className={`flex text-body5 md:text-h2 gap-36 font-light`}>
             {projectData.tags.map((tag, idx) => (
@@ -42,26 +42,23 @@ export default function DeliverySetupPage() {
           </p>
         </section>
 
-        <section className="full-bleed max-w-[1440px] mx-auto flex flex-col justify-center items-center py-40 md:py-80">
-          <Image
-            src={HeroImage}
-            alt="Delivery Setup website"
-            className="w-full max-w-[1440px]"
-            placeholder="blur"
-          />
-        </section>
-
-        <section
-          className={`${serifText.className} grid grid-cols-1 md:grid-cols-2 gap-32 py-40 md:py-80`}
-        >
+        <section className={`${serifText.className} py-40 md:py-80`}>
           <h2
-            className={`${condensedHeadings.className} text-h3 md:text-[48px] uppercase`}
+            className={`${condensedHeadings.className} text-h3 md:text-[48px] uppercase mb-24 md:mb-40`}
           >
-            {/* [TEXT] About heading */}
+            About the project
           </h2>
-          <p className="text-body4 md:text-body1">
-            {/* [TEXT] Intro paragraph */}
-          </p>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-32 md:gap-48 items-start">
+            <Image
+              src={HeroImage}
+              alt="Delivery Setup website"
+              className="w-full"
+              placeholder="blur"
+            />
+            <p className="text-body4 md:text-body1">
+              Behind every restaurant scaling its delivery is an operational backbone running couriers, packaging, and customer experience. That's Delivery Setup. Our work covered the brand identity, website, and the operational touchpoints food businesses use day to day — so they can grow without losing quality or control.
+            </p>
+          </div>
         </section>
 
         <section className="py-80">
