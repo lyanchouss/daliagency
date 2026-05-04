@@ -13,18 +13,18 @@ const links = [
     href: "/#projects",
   },
   {
-    text: "Twitter",
-    href: "https://twitter.com/peakshift",
-    isExternal: true,
+    text: "Services",
+    href: "/#services",
+    isExternal: false,
   },
   {
-    text: "BOLT.FUN",
-    href: "https://bolt.fun",
-    isExternal: true,
+    text: "About",
+    href: "/#about",
+    isExternal: false,
   },
   {
     text: "Contact",
-    href: "mailto:team@peakshift.com",
+    href: "mailto:dav.hakobyan100@gmail.com",
     isExternal: true,
   },
   {

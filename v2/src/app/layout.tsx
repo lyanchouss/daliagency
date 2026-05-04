@@ -4,6 +4,7 @@ import { sansText } from "@/assets/fonts";
 import Footer from "@/Components/Footer/Footer";
 import Frame from "@/Components/Frame/Frame";
 import ColorPicker from "@/Components/ColorPicker/ColorPicker";
+import PageGrain from "@/Components/PageGrain/PageGrain";
 
 export const metadata = {
   title: "PEAK SHIFT LTD.",
@@ -18,6 +19,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className={sansText.className}>
+        <PageGrain />
         <Navbar />
         <Frame />
         {children}

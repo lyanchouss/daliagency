@@ -6,8 +6,9 @@ import Button from "@/Components/Button/Button";
 import { FiChevronRight } from "react-icons/fi";
 import TrackAndFieldImage from "./assets/track-and-field.svg";
 import ClientLogos from "./assets/logos.png";
-import QuoteBumi from "./assets/bumi.jpg";
-import Image from "next/image";
+import Image, { StaticImageData } from "next/image";
+import DavidImage from "@/assets/images/team/david.png";
+import LianaImage from "@/assets/images/team/liana.jpeg";
 import DiagramImage from "./assets/diagram.svg";
 import DoodleImage from "./assets/long-term-goals.svg";
 import PatentImage from "./assets/patent.svg";
@@ -498,39 +499,79 @@ export default function DesignSprints() {
         <div className="mx-auto max-w-2xl lg:max-w-4xl">
           <figure className="mt-10">
             <blockquote className="text-center mb-24">
-              <h4 className="uppercase text-2xl font-light">Alby</h4>
               <p
                 className={`${serifText.className} text-2xl italic font-light leading-8 text-gray-900 sm:text-3xl sm:leading-10`}
               >
-                The design sprint organised and lead by PEAK SHIFT was
-                instrumental in building what now became Alby. It helped us to
-                define the initial product scope, understand user needs and turn
-                vague ideas into actionable product goals plus an initial design
-                prototype
+                <span
+                  className="text-[var(--primary,#dd1e3e)]"
+                  style={{ fontFamily: "'Adelia', cursive", fontStyle: "normal" }}
+                >
+                  Dali
+                </span>{" "}
+                is a husband-and-wife studio — Liana behind the design,
+                David behind the engineering. Working as a couple means
+                complete trust, no politics, and projects we both fully put
+                our name on.
               </p>
             </blockquote>
-            <figcaption className="mt-10">
-              <Image
-                className="mx-auto h-80 w-80 border border-dotted border-black block p-0.5 mb-12"
-                src={QuoteBumi}
-                alt="Photo of Bumi"
-              />
-              <div className="mt-4 flex items-center justify-center space-x-3 text-xl">
-                <div className="text-gray-900 uppercase">Michael Bumann</div>
-                <svg
-                  viewBox="0 0 2 2"
-                  width="3"
-                  height="3"
-                  aria-hidden="true"
-                  className="fill-gray-900"
-                >
-                  <circle cx="1" cy="1" r="1" />
-                </svg>
-                <div className="text-gray-600 uppercase font-light">
-                  Founder & CTO
-                </div>
-              </div>
-            </figcaption>
+            <div className="mt-10 grid grid-cols-1 sm:grid-cols-2 gap-12 sm:gap-24">
+              {(
+                [
+                  {
+                    image: DavidImage,
+                    name: "David",
+                    role: "Founder",
+                  },
+                  { image: LianaImage, name: "Liana", role: "Co-founder" },
+                ] as Array<{
+                  initial?: string;
+                  image?: StaticImageData;
+                  name: string;
+                  role: string;
+                }>
+              ).map((p) => (
+                <figcaption key={p.name} className="text-center">
+                  {p.image ? (
+                    <Image
+                      src={p.image}
+                      alt={`${p.name}, ${p.role}`}
+                      className="mx-auto h-[130px] w-[130px] mb-12 object-cover object-top"
+                      width={130}
+                      height={130}
+                      style={{
+                        maskImage:
+                          "radial-gradient(ellipse at center, black 50%, transparent 95%)",
+                        WebkitMaskImage:
+                          "radial-gradient(ellipse at center, black 50%, transparent 95%)",
+                      }}
+                    />
+                  ) : (
+                    <div
+                      role="img"
+                      aria-label={`${p.name}, ${p.role}`}
+                      className="mx-auto h-[130px] w-[130px] border border-dotted border-black p-0.5 mb-12 flex items-center justify-center bg-[var(--primary,#dd1e3e)] text-white text-4xl font-light uppercase"
+                    >
+                      {p.initial}
+                    </div>
+                  )}
+                  <div className="mt-4 flex items-center justify-center space-x-3 text-xl">
+                    <div className="text-gray-900 uppercase">{p.name}</div>
+                    <svg
+                      viewBox="0 0 2 2"
+                      width="3"
+                      height="3"
+                      aria-hidden="true"
+                      className="fill-gray-900"
+                    >
+                      <circle cx="1" cy="1" r="1" />
+                    </svg>
+                    <div className="text-gray-600 uppercase font-light">
+                      {p.role}
+                    </div>
+                  </div>
+                </figcaption>
+              ))}
+            </div>
           </figure>
         </div>
       </section>

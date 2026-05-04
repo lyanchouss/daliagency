@@ -1,7 +1,7 @@
 import Hero from "../Components/Home/Hero";
 import Projects from "../Components/Home/Projects";
 import DesignSprints from "../Components/Home/DesignSprints";
-import Quote from "@/Components/Quote/Quote";
+import About from "../Components/Home/About";
 
 export default function Home() {
   return (
@@ -9,7 +9,7 @@ export default function Home() {
       <Hero />
       <Projects />
       <DesignSprints />
-      <Quote />
+      <About />
     </main>
   );
 }
